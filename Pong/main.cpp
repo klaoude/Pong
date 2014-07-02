@@ -51,6 +51,7 @@ bool jeu = false; //bool de la boucle du jeu
 bool Cmenu = true; //bool de l'afichage du menu
 bool start; //bool du score
 bool boolname; // bool de la boucle pour choisir le nom
+bool writeScore; //bool qui dit si on ecrit le nom du joueur ou pas
 
 int score;
 Uint32 oldballeid;
@@ -63,11 +64,12 @@ string pseudo;
 
 string pathFichierScore = ("score.txt");
 
+
 //Fonction
 void jeux();
 void pause();
 void changeColor(int yolo, int yola, int yala);
-bool check_collision(SDL_Rect* A, SDL_Rect* B);
+bool check_collision(SDL_Rect A, SDL_Rect B);
 void resultMenu();
 void menu();
 void endGame();
@@ -126,9 +128,19 @@ void resultMenu()
 {
 	changeColor(0, 0, 0);
 	police = TTF_OpenFont("SnackerComic.ttf", 50);
+	if (!police)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		exit(EXIT_FAILURE);
+	}
 	texte = TTF_RenderText_Solid(police, "Your score is : ", couleurBlanc);
 
 	police2 = TTF_OpenFont("SnackerComic.ttf", 30);
+	if (!police2)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		exit(EXIT_FAILURE);
+	}
 	texte2 = TTF_RenderText_Solid(police2, "Rejouer : Press Enter !", couleurRouge);
 
 	position.x = SCREEN_WIDTH / 2 - texte->w / 2; position.y = 10;
@@ -167,9 +179,19 @@ void menu()
 {	
 	changeColor(0, 0, 0);
 	police = TTF_OpenFont("SnackerComic.ttf", 50);
+	if (!police)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		exit(EXIT_FAILURE);
+	}
 	texte = TTF_RenderText_Solid(police, "Pong !!!", couleurBlanc);
 
 	police2 = TTF_OpenFont("SnackerComic.ttf", 30);
+	if (!police2)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		exit(EXIT_FAILURE);
+	}
 	texte2 = TTF_RenderText_Solid(police2, "Jouer : Press Enter !", couleurRouge);
 
 	position.x = SCREEN_WIDTH / 2 - texte->w / 2; position.y = 10;
@@ -210,8 +232,8 @@ void jeux()
 	if (player->getRect().y <= SCREEN_BORDER)
 		player->setRecty(SCREEN_BORDER);
 
-	colision = check_collision(&player->getRect(), &balle->getRect());
-	colisionOther = check_collision(&other->getRect(), &balle->getRect());
+	colision = check_collision(player->getRect(), balle->getRect());
+	colisionOther = check_collision(other->getRect(), balle->getRect());
 
 	if (colision){ CenableR = true; CenableL = false;}
 	if (colisionOther){ CenableL = true; CenableR = false;}
@@ -238,6 +260,11 @@ void jeux()
 	scorechar = scorestr.c_str();
 
 	police3 = TTF_OpenFont("ttf/BMgermar.ttf", 50);
+	if (!police3)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		exit(EXIT_FAILURE);
+	}
 	scoretxt = TTF_RenderText_Solid(police3, scorechar, couleurBlanc);
 
 	scorePos.x = SCREEN_WIDTH / 2 - scoretxt->w / 2;
@@ -249,7 +276,7 @@ void jeux()
 	SDL_Delay(33);
 }
 
-bool check_collision(SDL_Rect* A, SDL_Rect* B)
+bool check_collision(SDL_Rect A, SDL_Rect B)
 {
 	
 	int leftA, leftB;
@@ -257,21 +284,20 @@ bool check_collision(SDL_Rect* A, SDL_Rect* B)
 	int topA, topB;
 	int bottomA, bottomB;
 
-	leftA = A->x;
-	rightA = A->x + A->w;
-	topA = A->y;
-	bottomA = A->y + A->h;
+	leftA = A.x;
+	rightA = A.x + A.w;
+	topA = A.y;
+	bottomA = A.y + A.h;
 
-	leftB = B->x;
-	rightB = B->x + B->w;
-	topB = B->y;
-	bottomB = B->y + B->h;
+	leftB = B.x;
+	rightB = B.x + B.w;
+	topB = B.y;
+	bottomB = B.y + B.h;
 
 	if (bottomA <= topB || topA >= bottomB || rightA <= leftB || rightA <= leftB || leftA >= rightB)
 		return false;
 	else
-		if (!start)
-			start = true;
+		start = true;
 	return true;
 }
 
@@ -281,8 +307,48 @@ void endGame()
 	delete other;
 	delete balle;
 
+	cout << "endgame" << endl;
+
 	//Free surface
 	//SDL_FreeSurface(scoretxt);
+
+	//write score in file
+	string const file("../Pong/score.txt");
+	ifstream checkfile(file.c_str());
+	//if file exist
+	if (checkfile)
+	{
+		//check if player is already in score
+		string line;
+		while (getline(checkfile, line, ' '))
+		{
+			if (line == pseudo)
+			{
+				cout << "[DEBUG] line == pseudo" << endl;
+				writeScore = false;
+				break;
+			}
+			else
+			{
+				writeScore = true;
+				cout << "/" << line << "/ | " << "/" << pseudo << "/" << endl;
+			}				
+		}
+
+		ofstream flux(file.c_str(), ios::app);
+
+		if (flux && writeScore)
+		{
+			flux << pseudo << " : " << score << endl;;
+		}
+	}
+	else
+	{
+		ofstream flux(file.c_str());
+		flux << "High Score" << endl << "--------------" << endl;
+		checkfile.close();
+	}
+	
 
 	//set Vars
 	jeu = false;
@@ -326,6 +392,11 @@ string getName()
 
 	string name;
 	police3 = TTF_OpenFont("ttf/BMgermar.ttf", 50);
+	if (!police3)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	while( boolname )
 	{
