@@ -20,6 +20,8 @@ SDL_Surface* texte2 = NULL;
 SDL_Surface* scoretxt = NULL;
 SDL_Surface* nametxt = NULL;
 SDL_Surface* qname = NULL;
+SDL_Surface* soloText = NULL;
+SDL_Surface* multiText = NULL;
 SDL_Rect position;
 SDL_Rect scorePos;
 SDL_Rect namePos;
@@ -66,6 +68,8 @@ string pathFichierScore = ("score.txt");
 
 
 //Fonction
+void doVars();
+void modMenu();
 void jeux();
 void pause();
 void changeColor(int yolo, int yola, int yala);
@@ -79,12 +83,14 @@ int main(int argc, char *argv[])
 {
 	/*ofstream fichierscore(pathFichierScore.c_str());
 	if (!fichierscore)
-		printf("erreur fichier score.txt");*/
+		printf("erreur fichier score.txt");*/	
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	TTF_Init();
 	if (TTF_Init() == -1)
 		printf("erreur tff");
+
+	doVars();
 
 	gWindow = SDL_CreateWindow("Pong", 20, 20, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
 	gScreenSurface = SDL_GetWindowSurface(gWindow);
@@ -124,23 +130,46 @@ int main(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-void resultMenu()
+void doVars()
 {
-	changeColor(0, 0, 0);
 	police = TTF_OpenFont("SnackerComic.ttf", 50);
 	if (!police)
 	{
 		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		system("pause");
 		exit(EXIT_FAILURE);
 	}
-	texte = TTF_RenderText_Solid(police, "Your score is : ", couleurBlanc);
 
 	police2 = TTF_OpenFont("SnackerComic.ttf", 30);
 	if (!police2)
 	{
 		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		system("pause");
 		exit(EXIT_FAILURE);
 	}
+
+	police3 = TTF_OpenFont("ttf/BMgermar.ttf", 50);
+	if (!police3)
+	{
+		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
+		system("pause");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void modMenu()
+{
+	changeColor(0, 0, 0);
+
+	soloText = TTF_RenderText_Solid(police, "SinglePlayer", couleurBlanc);
+	multiText = TTF_RenderText_Solid(police, "MultiPlayer", couleurBlanc);
+}
+
+void resultMenu()
+{
+	changeColor(0, 0, 0);
+	
+	texte = TTF_RenderText_Solid(police, "Your score is : ", couleurBlanc);	
 	texte2 = TTF_RenderText_Solid(police2, "Rejouer : Press Enter !", couleurRouge);
 
 	position.x = SCREEN_WIDTH / 2 - texte->w / 2; position.y = 10;
@@ -178,20 +207,8 @@ void resultMenu()
 void menu()
 {	
 	changeColor(0, 0, 0);
-	police = TTF_OpenFont("SnackerComic.ttf", 50);
-	if (!police)
-	{
-		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
-		exit(EXIT_FAILURE);
-	}
-	texte = TTF_RenderText_Solid(police, "Pong !!!", couleurBlanc);
 
-	police2 = TTF_OpenFont("SnackerComic.ttf", 30);
-	if (!police2)
-	{
-		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
-		exit(EXIT_FAILURE);
-	}
+	texte = TTF_RenderText_Solid(police, "Pong !!!", couleurBlanc);
 	texte2 = TTF_RenderText_Solid(police2, "Jouer : Press Enter !", couleurRouge);
 
 	position.x = SCREEN_WIDTH / 2 - texte->w / 2; position.y = 10;
@@ -259,12 +276,6 @@ void jeux()
 	scorestr = static_cast<ostringstream*>(&(ostringstream() << score))->str();
 	scorechar = scorestr.c_str();
 
-	police3 = TTF_OpenFont("ttf/BMgermar.ttf", 50);
-	if (!police3)
-	{
-		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
-		exit(EXIT_FAILURE);
-	}
 	scoretxt = TTF_RenderText_Solid(police3, scorechar, couleurBlanc);
 
 	scorePos.x = SCREEN_WIDTH / 2 - scoretxt->w / 2;
@@ -391,12 +402,6 @@ string getName()
 	boolname = true;
 
 	string name;
-	police3 = TTF_OpenFont("ttf/BMgermar.ttf", 50);
-	if (!police3)
-	{
-		cout << "fucking ttf bug :( - " << TTF_GetError() << endl;
-		exit(EXIT_FAILURE);
-	}
 
 	while( boolname )
 	{
@@ -500,10 +505,13 @@ string getName()
 							name += "z";
 							break;
 						case SDLK_ESCAPE:
-							name.erase(name.size() - 1);
+							changeColor(0, 0, 0);
+							if (name.size() > 0)
+								name.erase(name.size() - 1);
 							break;
 						case SDLK_RETURN:
-							boolname = false;
+							if (name.size() >= 3)
+								boolname = false;
 							break;
 						}	
 					break;

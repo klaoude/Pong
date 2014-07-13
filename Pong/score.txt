@@ -10,3 +10,4 @@ klaoude : 120
 klaoude : 120
 klaoude : 120
 klaoude : 720
+kla : 120
