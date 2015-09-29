@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <ctype.h>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -78,6 +80,24 @@ void resultMenu();
 void menu();
 void endGame();
 string getName();
+
+inline bool isInteger(const std::string & s)
+{
+	if (s.empty() || ((!isdigit(s[0])) && (s[0] != '-') && (s[0] != '+'))) return false;
+
+	char * p;
+	strtol(s.c_str(), &p, 10);
+
+	return (*p == 0);
+}
+
+bool isInt(string word)
+{
+	bool a = true;
+	for (string::const_iterator k = word.begin(); k != word.end(); ++k)
+		a &= isdigit(*k);
+	return a;
+}
 
 int main(int argc, char *argv[])
 {
@@ -329,22 +349,38 @@ void endGame()
 	//if file exist
 	if (checkfile)
 	{
+		int nbline = 0;
+		vector<int> vScore;
 		//check if player is already in score
 		string line;
 		while (getline(checkfile, line, ' '))
-		{
+		{		
+			nbline++;
 			if (line == pseudo)
 			{
-				cout << "[DEBUG] line == pseudo" << endl;
+				//cout << "[DEBUG] line == pseudo" << endl;
 				writeScore = false;
 				break;
 			}
 			else
 			{
 				writeScore = true;
-				cout << "/" << line << "/ | " << "/" << pseudo << "/" << endl;
-			}				
+				//cout << "/" << line << "/ | " << "/" << pseudo << "/" << endl;
+			}
+
+			if (isInteger(line))
+			{
+				vScore.push_back(stoi(line));
+				cout << "AWSOMMMMMEEE " << line << " at line : " << nbline << endl;
+			}
+
+			if (isInt(line))
+				cout << "prout" << endl;
+
+			cout << line << endl;
 		}
+
+		nbline--;
 
 		ofstream flux(file.c_str(), ios::app);
 
@@ -352,6 +388,7 @@ void endGame()
 		{
 			flux << pseudo << " : " << score << endl;;
 		}
+		cout << nbline << endl;
 	}
 	else
 	{
@@ -504,7 +541,7 @@ string getName()
 						case SDLK_z:
 							name += "z";
 							break;
-						case SDLK_ESCAPE:
+						case SDLK_BACKSPACE:
 							changeColor(0, 0, 0);
 							if (name.size() > 0)
 								name.erase(name.size() - 1);

@@ -1,13 +1,14 @@
 High Score
 --------------
+score : 120
+test : 480
+onch : 240
+klaoude : 600
 klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 120
-klaoude : 720
-kla : 120
+lel : 120
+lol : 120
+aaa : 120
+aab : 120
+aac : 120
+klaoude : 360
+klaoude : 240
